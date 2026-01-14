@@ -1,7 +1,7 @@
 [package]
 name = "ControlScrap"
-version = "1.0.0"
-edition = "2021"
+version = "1.1.0"
+edition = "2024"
 
 [dependencies]
 reqwest = {version="0.11.17", features = ["blocking"]}
@@ -12,3 +12,4 @@ chrono = "0.4.38"
 scraper = "0.21.0"
 regex = "1.11.1"
 dirs = "6.0.0"
+paste = "1.0.15"

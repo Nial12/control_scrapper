@@ -1,12 +1,18 @@
+use config::get_config;
 use grab::grabhtml;
 use image::{get_image, store_image};
 use parse::{clean_idata_vec, parsehtml};
 use rand::seq::SliceRandom;
 
+mod config;
 mod grab;
 mod image;
 mod log;
 mod parse;
+
+thread_local! {
+    pub static CONFIG: std::collections::HashMap<String, String> = get_config();
+}
 
 fn main() {
     let tmp = grabhtml();

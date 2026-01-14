@@ -2,20 +2,23 @@ use chrono::{Datelike, NaiveDate};
 use rand::seq::SliceRandom;
 use reqwest::blocking::Client;
 
+use crate::get_parameter;
+
 pub fn grabhtml() -> String {
-    let mut s: String = "https://controlgame.com/faden-friday-".to_string();
+    let mut s: String = get_base_url();
     for c in rndmonth().chars() {
         s.push(c);
     }
     s.push('/');
-
+    // let s = "https://505games.com/control-faden-friday-december-2024/".to_owned();
     let url = url::Url::parse(&s[..]).unwrap();
     let client: Client = reqwest::blocking::Client::new();
     let mut body = client.get(url.clone());
     body = body.timeout(std::time::Duration::from_secs(300));
     let mut req = body.send().unwrap();
     while !req.status().is_success() {
-        let mut sn: String = "https://controlgame.com/faden-friday-".to_string();
+        // println!("Failed Request at {}", req.url());
+        let mut sn: String = get_base_url();
         for c in rndmonth().chars() {
             sn.push(c);
         }
@@ -43,5 +46,17 @@ pub fn rndmonth() -> String {
         i += 1;
     }
     let mut rng = rand::thread_rng();
-    v.choose(&mut rng).unwrap().format("%B-%C%y").to_string()
+    v.choose(&mut rng)
+        .unwrap()
+        .format(&get_date_format()[..])
+        .to_string()
 }
+
+// See format rules here : https://docs.rs/chrono/latest/chrono/format/strftime/index.html
+get_parameter!(date_format, String, "%B-%Y", to_owned);
+get_parameter!(
+    base_url,
+    String,
+    "https://505games.com/control-faden-friday-",
+    to_owned
+);

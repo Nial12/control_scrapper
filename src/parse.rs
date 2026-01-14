@@ -1,6 +1,8 @@
 use regex::Regex;
 use scraper::{Html, Selector};
 
+use crate::get_parameter;
+
 #[derive(Default, Debug)]
 pub struct Idata {
     pub w: usize,
@@ -11,9 +13,9 @@ pub struct Idata {
 pub fn parsehtml(s: String) -> Vec<Idata> {
     let mut v: Vec<Idata> = vec![];
     let mut c: usize = 0;
-    let r_width = Regex::new(r"width=.(?<width>\d+).").unwrap();
+    let r_width = Regex::new(&get_width_regex()).unwrap();
 
-    let r_height = Regex::new(r"height=.(?<height>\d+).").unwrap();
+    let r_height = Regex::new(&get_height_regex()).unwrap();
 
     let r_path = Regex::new(r"src=.(?<path>[a-zA-Z:\/\.\-0-9@\_]+).").unwrap();
 
@@ -77,11 +79,24 @@ pub fn textcheck(
 
 pub fn clean_idata_vec(v: &mut Vec<Idata>) {
     let mut i: usize = 0;
+    let target_width = get_target_width();
+    let target_height = get_target_height();
+    let at_least_as_large = get_at_least_as_large();
     while i < v.len() {
-        if ((v[i].w * 9) / 16 == v[i].h) && ((v[i].w * 9) % 16 == 0) {
-            i += 1;
+        if v[i].w * target_height == v[i].h * target_width {
+            if !at_least_as_large || (target_width <= v[i].w && target_height <= v[i].h) {
+                i += 1;
+            } else {
+                v.remove(i);
+            }
         } else {
             v.remove(i);
         }
     }
 }
+
+get_parameter!(target_height, usize, 1080, parse);
+get_parameter!(target_width, usize, 1920, parse);
+get_parameter!(at_least_as_large, bool, true, parse);
+get_parameter!(height_regex, String, r"height=.(?<height>\d+).", to_owned);
+get_parameter!(width_regex, String, r"width=.(?<width>\d+).", to_owned);
