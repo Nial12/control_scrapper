@@ -45,20 +45,20 @@ where
 macro_rules! get_parameter {
     ($config_key: ident, $type:ty, $default:expr, parse) => {
         paste::paste! {
-            #[inline]
-            pub fn [<get_ $config_key>]() -> $type {
-                let default_value = $default;
-                $crate::CONFIG.with(|config| -> $type {
-                    if let Some(temp) = config.get(stringify!($config_key)) {
-                        temp. to_lowercase()
-                            . parse::<$type>()
-                            .unwrap_or(default_value)
-                    } else {
-                        default_value
-                    }
-                })
+                #[inline]
+                pub fn [<get_ $config_key>]() -> $type {
+                    let default_value = $default;
+                    $crate::CONFIG.with(|config| -> $type {
+                        if let Some(temp) = config.get(stringify!($config_key)) {
+                            temp.to_lowercase()
+                                .parse::<$type>()
+                                .unwrap_or(default_value)
+                        } else {
+        default_value
+                        }
+                    })
+                }
             }
-        }
     };
 
     ($config_key:ident, $type:ty, $default:expr, to_owned) => {
@@ -66,9 +66,9 @@ macro_rules! get_parameter {
             #[inline]
             pub fn [<get_ $config_key>]() -> $type {
                 let default_value = $default;
-                $crate:: CONFIG.with(|config| -> $type {
+                $crate::CONFIG.with(|config| -> $type {
                     if let Some(temp) = config.get(stringify!($config_key)) {
-                        temp. to_owned()
+                        temp.to_owned()
                     } else {
                         default_value.to_owned()
                     }

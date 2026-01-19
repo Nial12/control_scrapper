@@ -1,3 +1,5 @@
+use std::usize;
+
 use regex::Regex;
 use scraper::{Html, Selector};
 
@@ -8,6 +10,32 @@ pub struct Idata {
     pub w: usize,
     pub h: usize,
     pub path: String,
+}
+
+impl Idata {
+    pub fn has_right_dimensions_slow(&self) -> bool {
+        let target_width = get_target_width();
+        let target_height = get_target_height();
+        let at_least_as_large = get_at_least_as_large();
+        if self.w * target_height == self.h * target_width {
+            !at_least_as_large || (target_width <= self.w && target_height <= self.h)
+        } else {
+            false
+        }
+    }
+
+    pub fn has_right_dimensions(
+        &self,
+        target_width: usize,
+        target_height: usize,
+        at_least_as_large: bool,
+    ) -> bool {
+        if self.w * target_height == self.h * target_width {
+            !at_least_as_large || (target_width <= self.w && target_height <= self.h)
+        } else {
+            false
+        }
+    }
 }
 
 pub fn parsehtml(s: String) -> Vec<Idata> {
@@ -31,6 +59,20 @@ pub fn parsehtml(s: String) -> Vec<Idata> {
             r_path.clone(),
         ) {
             v.push(idata);
+        }
+    }
+    v
+}
+
+pub fn parsetxt(s: &String) -> Vec<Idata> {
+    let mut v: Vec<Idata> = vec![];
+    for element in s.split('\n') {
+        if !s.starts_with('#') {
+            v.push(Idata {
+                w: 0,
+                h: 0,
+                path: element.to_owned(),
+            })
         }
     }
     v
@@ -83,15 +125,17 @@ pub fn clean_idata_vec(v: &mut Vec<Idata>) {
     let target_height = get_target_height();
     let at_least_as_large = get_at_least_as_large();
     while i < v.len() {
-        if v[i].w * target_height == v[i].h * target_width {
-            if !at_least_as_large || (target_width <= v[i].w && target_height <= v[i].h) {
-                i += 1;
-            } else {
-                v.remove(i);
-            }
+        if v[i].has_right_dimensions(target_width, target_height, at_least_as_large) {
+            i += 1;
         } else {
             v.remove(i);
         }
+    }
+}
+
+pub fn remove_from_list(list: &mut String, to_remove: &String) {
+    if let Some(i) = list.find(to_remove) {
+        list.insert_str(i, "# ");
     }
 }
 

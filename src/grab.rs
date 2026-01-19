@@ -1,8 +1,10 @@
+use std::{fs::File, io::Read, vec};
+
 use chrono::{Datelike, NaiveDate};
 use rand::seq::SliceRandom;
 use reqwest::blocking::Client;
 
-use crate::get_parameter;
+use crate::{get_from_txt_list, get_parameter};
 
 pub fn grabhtml() -> String {
     let mut s: String = get_base_url();
@@ -52,11 +54,61 @@ pub fn rndmonth() -> String {
         .to_string()
 }
 
+pub fn grabtxt() -> String {
+    match grabtxt_inner() {
+        Ok(s) => s,
+        Err(_) => {
+            eprintln!("Error while obtaining image list from txt file");
+            "".to_owned()
+        }
+    }
+}
+
+pub fn grabtxt_inner() -> Result<String, anyhow::Error> {
+    let txt_path = get_image_list_txt_path();
+    let mut image_list = File::open(txt_path)?;
+    let mut file_byte = Vec::new();
+    image_list.read_to_end(&mut file_byte)?;
+    Ok(String::from_utf8(file_byte.to_vec())?)
+}
+
+pub fn actualise_txt_list(s: &String) -> bool {
+    if !get_from_txt_list() {
+        return true;
+    }
+    let path = get_image_list_txt_path();
+    if !path.is_empty() {
+        std::fs::write(path, s).is_ok()
+    } else {
+        false
+    }
+}
+
 // See format rules here : https://docs.rs/chrono/latest/chrono/format/strftime/index.html
 get_parameter!(date_format, String, "%B-%Y", to_owned);
 get_parameter!(
     base_url,
     String,
     "https://505games.com/control-faden-friday-",
+    to_owned
+);
+get_parameter!(
+    image_list_txt_path,
+    String,
+    {
+        match dirs::home_dir() {
+            Some(mut path) => {
+                path.push(".control_scrapper");
+                path.push("image_list");
+                path.set_extension("txt");
+                path.display().to_string()
+            }
+
+            None => {
+                eprintln!("Impossible to get your home dir!");
+                "image_list.txt".to_string()
+            }
+        }
+    },
     to_owned
 );
