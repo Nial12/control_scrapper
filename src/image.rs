@@ -1,9 +1,7 @@
-use std::usize;
-
-use image::{GenericImageView, ImageReader, io};
+use image::{GenericImageView, ImageReader};
 
 use crate::get_parameter;
-use crate::log::get_log_path;
+use crate::log::get_conf_log_path;
 use crate::parse::Idata;
 
 pub fn get_image(s: String) -> Option<Vec<u8>> {
@@ -14,7 +12,7 @@ pub fn get_image(s: String) -> Option<Vec<u8>> {
             path.push("control_scrapper");
             path.set_extension("conf");
 
-            let log_path = get_log_path();
+            let log_path = get_conf_log_path();
 
             crate::log::Log {
                 log_path,
@@ -34,7 +32,7 @@ pub fn get_image(s: String) -> Option<Vec<u8>> {
 }
 
 pub fn store_image(image_bytes: &Vec<u8>) -> bool {
-    let path = get_image_path();
+    let path = get_conf_image_path();
     if !path.is_empty() {
         std::fs::write(path, image_bytes).is_ok()
     } else {

@@ -46,7 +46,7 @@ macro_rules! get_parameter {
     ($config_key: ident, $type:ty, $default:expr, parse) => {
         paste::paste! {
                 #[inline]
-                pub fn [<get_ $config_key>]() -> $type {
+                pub fn [<get_conf_ $config_key>]() -> $type {
                     let default_value = $default;
                     $crate::CONFIG.with(|config| -> $type {
                         if let Some(temp) = config.get(stringify!($config_key)) {
@@ -64,7 +64,7 @@ macro_rules! get_parameter {
     ($config_key:ident, $type:ty, $default:expr, to_owned) => {
         paste::paste! {
             #[inline]
-            pub fn [<get_ $config_key>]() -> $type {
+            pub fn [<get_conf_ $config_key>]() -> $type {
                 let default_value = $default;
                 $crate::CONFIG.with(|config| -> $type {
                     if let Some(temp) = config.get(stringify!($config_key)) {

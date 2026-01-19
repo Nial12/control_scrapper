@@ -4,10 +4,10 @@ use chrono::{Datelike, NaiveDate};
 use rand::seq::SliceRandom;
 use reqwest::blocking::Client;
 
-use crate::{get_from_txt_list, get_parameter};
+use crate::{get_conf_from_txt_list, get_parameter};
 
 pub fn grabhtml() -> String {
-    let mut s: String = get_base_url();
+    let mut s: String = get_conf_base_url();
     for c in rndmonth().chars() {
         s.push(c);
     }
@@ -20,7 +20,7 @@ pub fn grabhtml() -> String {
     let mut req = body.send().unwrap();
     while !req.status().is_success() {
         // println!("Failed Request at {}", req.url());
-        let mut sn: String = get_base_url();
+        let mut sn: String = get_conf_base_url();
         for c in rndmonth().chars() {
             sn.push(c);
         }
@@ -50,7 +50,7 @@ pub fn rndmonth() -> String {
     let mut rng = rand::thread_rng();
     v.choose(&mut rng)
         .unwrap()
-        .format(&get_date_format()[..])
+        .format(&get_conf_date_format()[..])
         .to_string()
 }
 
@@ -65,7 +65,7 @@ pub fn grabtxt() -> String {
 }
 
 pub fn grabtxt_inner() -> Result<String, anyhow::Error> {
-    let txt_path = get_image_list_txt_path();
+    let txt_path = get_conf_image_list_txt_path();
     let mut image_list = File::open(txt_path)?;
     let mut file_byte = Vec::new();
     image_list.read_to_end(&mut file_byte)?;
@@ -73,10 +73,10 @@ pub fn grabtxt_inner() -> Result<String, anyhow::Error> {
 }
 
 pub fn actualise_txt_list(s: &String) -> bool {
-    if !get_from_txt_list() {
+    if !get_conf_from_txt_list() {
         return true;
     }
-    let path = get_image_list_txt_path();
+    let path = get_conf_image_list_txt_path();
     if !path.is_empty() {
         std::fs::write(path, s).is_ok()
     } else {

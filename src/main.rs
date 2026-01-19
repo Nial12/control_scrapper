@@ -21,7 +21,7 @@ thread_local! {
 }
 
 fn main() {
-    let from_txt_list = get_from_txt_list();
+    let from_txt_list = get_conf_from_txt_list();
     if !from_txt_list {
         let tmp = grabhtml();
         let mut v = parsehtml(tmp);

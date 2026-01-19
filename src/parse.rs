@@ -1,5 +1,3 @@
-use std::usize;
-
 use regex::Regex;
 use scraper::{Html, Selector};
 
@@ -14,9 +12,9 @@ pub struct Idata {
 
 impl Idata {
     pub fn has_right_dimensions_slow(&self) -> bool {
-        let target_width = get_target_width();
-        let target_height = get_target_height();
-        let at_least_as_large = get_at_least_as_large();
+        let target_width = get_conf_target_width();
+        let target_height = get_conf_target_height();
+        let at_least_as_large = get_conf_at_least_as_large();
         if self.w * target_height == self.h * target_width {
             !at_least_as_large || (target_width <= self.w && target_height <= self.h)
         } else {
@@ -41,9 +39,9 @@ impl Idata {
 pub fn parsehtml(s: String) -> Vec<Idata> {
     let mut v: Vec<Idata> = vec![];
     let mut c: usize = 0;
-    let r_width = Regex::new(&get_width_regex()).unwrap();
+    let r_width = Regex::new(&get_conf_width_regex()).unwrap();
 
-    let r_height = Regex::new(&get_height_regex()).unwrap();
+    let r_height = Regex::new(&get_conf_height_regex()).unwrap();
 
     let r_path = Regex::new(r"src=.(?<path>[a-zA-Z:\/\.\-0-9@\_]+).").unwrap();
 
@@ -64,7 +62,7 @@ pub fn parsehtml(s: String) -> Vec<Idata> {
     v
 }
 
-pub fn parsetxt(s: &String) -> Vec<Idata> {
+pub fn parsetxt(s: &str) -> Vec<Idata> {
     let mut v: Vec<Idata> = vec![];
     for element in s.split('\n') {
         if !s.starts_with('#') {
@@ -121,9 +119,9 @@ pub fn textcheck(
 
 pub fn clean_idata_vec(v: &mut Vec<Idata>) {
     let mut i: usize = 0;
-    let target_width = get_target_width();
-    let target_height = get_target_height();
-    let at_least_as_large = get_at_least_as_large();
+    let target_width = get_conf_target_width();
+    let target_height = get_conf_target_height();
+    let at_least_as_large = get_conf_at_least_as_large();
     while i < v.len() {
         if v[i].has_right_dimensions(target_width, target_height, at_least_as_large) {
             i += 1;
